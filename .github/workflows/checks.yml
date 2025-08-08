@@ -2,7 +2,7 @@ name: Checks
 
 on:
   pull_request:
-    branches: [prod, main]
+    branches: [prod]
 
 jobs:
   test-lint:
