@@ -39,6 +39,6 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$APP_REPOSITORY:$IMAGE_TAG .
-          docker build -t $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG /proxy
+          docker build -t $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG proxy/
           docker push $REGISTRY/$APP_REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG
