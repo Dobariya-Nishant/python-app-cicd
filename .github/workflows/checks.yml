@@ -2,12 +2,12 @@ name: Checks
 
 on:
   pull_request:
-    branches: [prod]
+    branches: [ "prod", "main" ]
 
 jobs:
   test-lint:
     name: Test and Lint
-    uses: ./.github/workflows/test-and-lint.yml
+    uses: ./.github/workflows/docker-image.yml
     secrets:
-      DOCKERHUB_USER: ${{vars.DOCKERHUB_USER}}
-      DOCKERHUB_TOKEN: ${{secrets.DOCKERHUB_TOKEN}}
+      DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
