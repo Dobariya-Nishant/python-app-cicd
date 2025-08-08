@@ -1,12 +1,5 @@
-output "cd_user_access_key_id" {
-  description = "Access Key ID for CD user"
-  value       = aws_iam_access_key.cd.id
-}
-
-output "cd_user_access_key_secret" {
-  description = "Access Key Secret for CD user"
-  value       = aws_iam_access_key.cd.secret
-  sensitive   = true
+output "role_arn" {
+  value = aws_iam_role.cd.arn
 }
 
 output "ecr_repo_app" {
