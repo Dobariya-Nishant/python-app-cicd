@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket               = "devops-learn-dev"
-    key                  = "python-app-deploy"
+    key                  = "tf-state-deploy"
     workspace_key_prefix = "tf-state-deploy-env"
     dynamodb_table       = "tf-backend-lock"
     region               = "us-east-1"
