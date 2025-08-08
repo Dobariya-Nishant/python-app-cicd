@@ -1,0 +1,40 @@
+name: Test and Lint
+
+on:
+  push:
+    branches: [ "prod", "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_IAM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          APP_REPOSITORY: ${{ vars.ECR_REPO_APP }}
+          PROXY_REPOSITORY: ${{ vars.ECR_REPO_PROXY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$APP_REPOSITORY:$IMAGE_TAG .
+          docker build -t $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG /proxy
+          docker push $REGISTRY/$APP_REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG
