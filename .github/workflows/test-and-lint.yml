@@ -5,8 +5,10 @@ on:
     secrets:
       DOCKERHUB_USER:
         required: true
+        description: "Username for DockerHub auth"
       DOCKERHUB_TOKEN:
         required: true
+        description: "Token for DockerHub auth"
 
 jobs:
   build:
