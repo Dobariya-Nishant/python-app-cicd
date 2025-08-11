@@ -52,7 +52,7 @@ jobs:
         id: fmt
         run: terraform -chdir=infra/deploy fmt -check
 
-      - name: Terraform Validate
+      - name: Terraform Init
         id: init
         run: terraform -chdir=infra/deploy init
 
