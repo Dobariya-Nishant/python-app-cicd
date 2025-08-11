@@ -42,3 +42,27 @@ jobs:
           docker build -t $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG proxy/
           docker push $REGISTRY/$APP_REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$PROXY_REPOSITORY:$IMAGE_TAG
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+          
+      - name: Terraform fmt
+        id: fmt
+        run: terraform -chdir=infra/deploy fmt -check
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=infra/deploy validate -no-color
+
+      - name: Select or Create Workspace
+        run: terraform workspace select -or-create stag
+
+      - name: Terraform Plan
+        run: terraform -chdir=infra/deploy plan -out=tfplan
+
+      # - name: Terraform Apply
+      #   run: terraform -chdir=infra/deploy apply -auto-approve tfplan
+
+      
