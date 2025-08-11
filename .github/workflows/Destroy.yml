@@ -38,7 +38,7 @@ jobs:
         run: terraform -chdir=infra/deploy init
 
       - name: Select Workspace
-        run: terraform workspace select ${{ github.event.inputs.environment }}
+        run: terraform -chdir=infra/deploy workspace select ${{ github.event.inputs.environment }}
 
       - name: Terraform Destroy
         run: terraform -chdir=infra/deploy destroy -auto-approve
