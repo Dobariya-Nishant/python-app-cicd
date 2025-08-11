@@ -53,6 +53,10 @@ jobs:
         run: terraform -chdir=infra/deploy fmt -check
 
       - name: Terraform Validate
+        id: init
+        run: terraform -chdir=infra/deploy init
+
+      - name: Terraform Validate
         id: validate
         run: terraform -chdir=infra/deploy validate -no-color
 
