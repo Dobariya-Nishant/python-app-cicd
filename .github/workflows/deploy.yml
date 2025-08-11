@@ -61,7 +61,7 @@ jobs:
         run: terraform -chdir=infra/deploy validate -no-color
 
       - name: Select or Create Workspace
-        run: terraform workspace select -or-create staging
+        run: terraform -chdir=infra/deploy workspace select -or-create staging
 
       - name: Terraform Plan
         run: terraform -chdir=infra/deploy plan -out=tfplan
