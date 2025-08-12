@@ -29,19 +29,39 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: "Checkout"
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: "Terraform lint"
-        run: |
-          cd infra/
-          docker compose run --rm terraform -chdir=deploy/ init -backend=false
-          docker compose run --rm terraform -chdir=setup/ init -backend=false
-          docker compose run --rm terraform -chdir=setup/ validate
-          docker compose run --rm terraform -chdir=setup/ fmt -check
-          docker compose run --rm terraform -chdir=deploy/ validate
-          docker compose run --rm terraform -chdir=deploy/ fmt -check
+        
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+          
+      - name: Terraform fmt
+        id: fmt
+        run: terraform -chdir=infra/deploy fmt -check
+
+      - name: Terraform Setup Init
+        id: init-setup
+        run: terraform -chdir=infra/setup init -backend=false
+
+      - name: Terraform Setup Validate
+        id: validate-setup
+        run: terraform -chdir=infra/setup validate -no-color
+
+      - name: Terraform Setup fmt
+        id: fmt-setup
+        run: terraform -chdir=infra/setup fmt -check
+
+      - name: Terraform Deploy Init
+        id: init-deploy
+        run: terraform -chdir=infra/deploy init -backend=false
+
+      - name: Terraform Deploy Validate
+        id: validate-deploy
+        run: terraform -chdir=infra/deploy validate -no-color
+
+      - name: Terraform Deploy fmt
+        id: fmt-deploy
+        run: terraform -chdir=infra/deploy fmt -check
+      
