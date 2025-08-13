@@ -132,6 +132,15 @@ resource "aws_iam_role_policy_attachment" "ecr" {
 }
 
 #########################
+# Policy for VPC access #
+#########################
+
+resource "aws_iam_role_policy_attachment" "vpc" {
+  role       = aws_iam_role.cd.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonVPCFullAccess"
+}
+
+#########################
 # Policy for RDS access #
 #########################
 
