@@ -27,6 +27,8 @@ resource "aws_iam_role" "cd" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
             "token.actions.githubusercontent.com:sub" = [
               "repo:Dobariya-Nishant/python-app-cicd:ref:refs/heads/main",
               "repo:Dobariya-Nishant/python-app-cicd:ref:refs/heads/prod"
@@ -37,6 +39,7 @@ resource "aws_iam_role" "cd" {
     ]
   })
 }
+
 
 ###########################################################
 # Policy for Terraform backend to S3 and Dynamo DB access #
@@ -60,7 +63,9 @@ data "aws_iam_policy_document" "tf_backend" {
       "s3:DeleteObject"
     ]
     resources = [
+      "arn:aws:s3:::${var.tf_state_bucket}/tf-state-deploy",
       "arn:aws:s3:::${var.tf_state_bucket}/tf-state-deploy/*",
+      "arn:aws:s3:::${var.tf_state_bucket}/tf-state-deploy-env",
       "arn:aws:s3:::${var.tf_state_bucket}/tf-state-deploy-env/*"
     ]
   }
