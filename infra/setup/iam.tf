@@ -1,13 +1,41 @@
 ###################################################################
-# Create IAM user and policies for Continuous Deploy (CD) account #
+# Create IAM role and policies for Continuous Deploy (CD) account #
 ###################################################################
 
-resource "aws_iam_user" "cd" {
-  name = "recipe-app-api-cd"
+data "tls_certificate" "github" {
+  url = "https://token.actions.githubusercontent.com"
 }
 
-resource "aws_iam_access_key" "cd" {
-  user = aws_iam_user.cd.name
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+}
+
+resource "aws_iam_role" "cd" {
+  name = "recipe-app-api-cd"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:Dobariya-Nishant/python-app-cicd:ref:refs/heads/main",
+              "repo:Dobariya-Nishant/python-app-cicd:ref:refs/heads/prod"
+            ]
+          }
+        }
+      }
+    ]
+  })
 }
 
 ###########################################################
@@ -51,13 +79,13 @@ data "aws_iam_policy_document" "tf_backend" {
 }
 
 resource "aws_iam_policy" "tf_backend" {
-  name        = "${aws_iam_user.cd.name}-tf-s3-dynamodb"
-  description = "Allow user to use S3 and DynamoDB for TF backend resources"
+  name        = "${aws_iam_role.cd.name}-tf-s3-dynamodb"
+  description = "Allow IAM Role to use S3 and DynamoDB for TF backend resources"
   policy      = data.aws_iam_policy_document.tf_backend.json
 }
 
-resource "aws_iam_user_policy_attachment" "tf_backend" {
-  user       = aws_iam_user.cd.name
+resource "aws_iam_role_policy_attachment" "tf_backend" {
+  role       = aws_iam_role.cd.name
   policy_arn = aws_iam_policy.tf_backend.arn
 }
 
@@ -88,13 +116,44 @@ data "aws_iam_policy_document" "ecr" {
 }
 
 resource "aws_iam_policy" "ecr" {
-  name        = "${aws_iam_user.cd.name}-cd-ecr"
-  description = "Allow user to use S3 and DynamoDB for TF backend resources"
+  name        = "${aws_iam_role.cd.name}-cd-ecr"
+  description = "Allow IAM Role to use S3 and DynamoDB for TF backend resources"
   policy      = data.aws_iam_policy_document.ecr.json
 }
 
-resource "aws_iam_user_policy_attachment" "ecr" {
-  user       = aws_iam_user.cd.name
+resource "aws_iam_role_policy_attachment" "ecr" {
+  role       = aws_iam_role.cd.name
   policy_arn = aws_iam_policy.ecr.arn
 }
 
+#########################
+# Policy for RDS access #
+#########################
+
+data "aws_iam_policy_document" "rds" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "rds:DescribeDBSubnetGroups",
+      "rds:DescribeDBInstances",
+      "rds:CreateDBSubnetGroup",
+      "rds:DeleteDBSubnetGroup",
+      "rds:CreateDBInstance",
+      "rds:DeleteDBInstance",
+      "rds:ListTagsForResource",
+      "rds:ModifyDBInstance"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "rds" {
+  name        = "${aws_iam_role.cd.name}-rds"
+  description = "Allow IAM Role to manage RDS resources."
+  policy      = data.aws_iam_policy_document.rds.json
+}
+
+resource "aws_iam_role_policy_attachment" "rds" {
+  role       = aws_iam_role.cd.name
+  policy_arn = aws_iam_policy.rds.arn
+}
