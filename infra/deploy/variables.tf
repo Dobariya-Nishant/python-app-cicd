@@ -22,3 +22,13 @@ variable "contact" {
   description = "Contact name for taggin resources"
   default     = "nishantdobariya@outlook.com"
 }
+
+variable "db_username" {
+  description = "Usename for the database"
+  sensitive = true
+}
+
+variable "db_password" {
+  description = "Password for the database"
+  sensitive = true
+}
