@@ -38,7 +38,7 @@ resource "aws_db_instance" "this" {
   db_name                    = "recipe"
   allocated_storage          = 20
   storage_type               = "gp2"
-  engine                     = "postgress"
+  engine                     = "postgres"
   engine_version             = "15.5"
   auto_minor_version_upgrade = true
   instance_class             = "db.t4g.micro"
