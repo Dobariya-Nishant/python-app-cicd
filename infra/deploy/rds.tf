@@ -9,12 +9,13 @@ resource "aws_db_subnet_group" "this" {
     aws_subnet.private_a.id,
     aws_subnet.private_b.id
   ]
+
   tags = {
     Name = "${local.prefix}-db-subnet-group"
   }
 }
 
-resource "aws_security_group" "this" {
+resource "aws_security_group" "rds" {
   description = "Allow access to the RDS database instance"
   name        = "${local.prefix}-rds-inbound-access"
 
@@ -24,7 +25,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_security_group_rule" "https" {
-  security_group_id = aws_db_subnet_group.this.id
+  security_group_id = aws_security_group.rds.id
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 5432
@@ -38,13 +39,13 @@ resource "aws_db_instance" "this" {
   allocated_storage          = 20
   storage_type               = "gp2"
   engine                     = "postgress"
-  engine_version             = "16"
+  engine_version             = "15.5"
   auto_minor_version_upgrade = true
   instance_class             = "db.t4g.micro"
   username                   = var.db_username
   password                   = var.db_password
   skip_final_snapshot        = true
-  db_subnet_group_name       = aws_db_subnet_group.this.name
+  db_subnet_group_name       = aws_db_subnet_group.rds.name
   multi_az                   = false
   backup_retention_period    = 0
   vpc_security_group_ids     = [aws_security_group.this.id]
