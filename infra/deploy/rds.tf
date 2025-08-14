@@ -39,7 +39,7 @@ resource "aws_db_instance" "this" {
   allocated_storage          = 20
   storage_type               = "gp2"
   engine                     = "postgres"
-  engine_version             = "17.5-R1"
+  engine_version             = "17.5"
   auto_minor_version_upgrade = true
   instance_class             = "db.t4g.micro"
   username                   = var.db_username
