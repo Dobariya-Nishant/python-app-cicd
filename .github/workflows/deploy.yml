@@ -72,6 +72,9 @@ jobs:
         run: terraform -chdir=infra/deploy workspace select -or-create ${{ github.ref_name }}
 
       - name: Terraform Plan
+        env:
+           TF_VAR_db_username: ${{ vars.TF_VAR_DB_USERNAME }}
+           TF_VAR_db_password: ${{ vars.TF_VAR_DB_PASSWORD }}
         run: terraform -chdir=infra/deploy plan -out=tfplan
 
       - name: Terraform Apply
