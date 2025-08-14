@@ -1,6 +1,6 @@
 variable "prefix" {
   description = "Prefix for resources in AWS"
-  default     = "Test"
+  default     = "test"
 }
 
 variable "tf_state_bucket" {
