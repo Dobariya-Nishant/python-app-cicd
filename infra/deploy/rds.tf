@@ -15,7 +15,7 @@ resource "aws_db_subnet_group" "this" {
   }
 }
 
-resource "aws_security_group" "rds" {
+resource "aws_security_group" "this" {
   description = "Allow access to the RDS database instance"
   name        = "${local.prefix}-rds-inbound-access"
 
@@ -25,7 +25,7 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_security_group_rule" "https" {
-  security_group_id = aws_security_group.rds.id
+  security_group_id = aws_security_group.this.id
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 5432
@@ -45,7 +45,7 @@ resource "aws_db_instance" "this" {
   username                   = var.db_username
   password                   = var.db_password
   skip_final_snapshot        = true
-  db_subnet_group_name       = aws_db_subnet_group.rds.name
+  db_subnet_group_name       = aws_db_subnet_group.this.name
   multi_az                   = false
   backup_retention_period    = 0
   vpc_security_group_ids     = [aws_security_group.this.id]
