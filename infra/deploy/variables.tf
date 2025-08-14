@@ -25,10 +25,10 @@ variable "contact" {
 
 variable "db_username" {
   description = "Usename for the database"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "db_password" {
   description = "Password for the database"
-  sensitive = true
+  sensitive   = true
 }
